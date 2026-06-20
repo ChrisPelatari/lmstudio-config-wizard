@@ -9,6 +9,9 @@ def recommend_settings(hardware_info: dict, model_profile: dict) -> dict:
     ram_gb = hardware_info.get("ram_gb", 8.0) # Ensure float for comparison
     cpu_logical_cores = int(hardware_info.get("logical_cores", 4)) # Ensure int for calculations
 
+    model_format = model_profile.get("format", "GGUF")
+    is_mlx = model_format == "MLX"
+
     gpu_name = hardware_info.get("gpu", "None")
     # Fix: Ensure gpu_memory_mb is treated as a number. If 'Unknown' or not convertible, default to 0.
     try:
@@ -128,19 +131,29 @@ def recommend_settings(hardware_info: dict, model_profile: dict) -> dict:
     try_mmap = True # Generally beneficial for GGUF models, allows faster loading
 
     # --- Assemble final configuration dictionary ---
-    config = {
-        "context_length": context_length,
-        "gpu_offload": gpu_offload,
-        "cpu_threads": cpu_threads,
-        "batch_size": batch_size,
-        "temperature": temp,
-        "top_p": top_p,
-        "top_k": top_k,
-        "repeat_penalty": repeat_penalty,
-        "max_tokens": max_tokens,
-        "keep_model_in_memory": keep_model_in_memory,
-        "flash_attention": flash_attention,
-        "try_mmap": try_mmap
-    }
+    if is_mlx:
+        config = {
+            "context_length": context_length,
+            "temperature": temp,
+            "top_p": top_p,
+            "top_k": top_k,
+            "repeat_penalty": repeat_penalty,
+            "max_tokens": max_tokens,
+        }
+    else:
+        config = {
+            "context_length": context_length,
+            "gpu_offload": gpu_offload,
+            "cpu_threads": cpu_threads,
+            "batch_size": batch_size,
+            "temperature": temp,
+            "top_p": top_p,
+            "top_k": top_k,
+            "repeat_penalty": repeat_penalty,
+            "max_tokens": max_tokens,
+            "keep_model_in_memory": keep_model_in_memory,
+            "flash_attention": flash_attention,
+            "try_mmap": try_mmap,
+        }
 
     return config

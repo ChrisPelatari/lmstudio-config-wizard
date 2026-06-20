@@ -50,7 +50,7 @@ def ask_model_profile():
 
     format = questionary.select(
         "📂 What format is the model?",
-        choices=["GGUF", "GGML", "HF (transformers)", "Other"],
+        choices=["GGUF", "GGML", "MLX", "HF (transformers)", "Other"],
     ).ask()
 
     language = questionary.select(
