@@ -1,11 +1,14 @@
 import argparse
 import os
 import yaml
+import questionary
 from hardware_utils import get_hardware_profile
 from model_profile import ask_model_profile
 from recommender import recommend_settings
+from lms_client import test_config
 from rich import print
 from rich.table import Table
+from rich.panel import Panel
 from datetime import datetime
 from rich.console import Console
 
@@ -51,6 +54,16 @@ def main():
     recommended_config = recommend_settings(hardware_info, user_needs)
 
     display_config(recommended_config)
+
+    if questionary.confirm("🧪 Test these settings against LM Studio now?", default=False).ask():
+        prompt = questionary.text(
+            "💬 Enter a test prompt:",
+            default="In one sentence, what is the capital of France?",
+        ).ask()
+        print("\n[bold yellow]⏳ Sending to LM Studio...[/bold yellow]")
+        response = test_config(user_needs["model_name"], recommended_config, prompt)
+        console = Console()
+        console.print(Panel(response, title="[bold cyan]Model Response[/bold cyan]", expand=False))
 
     if args.export:
         model_name = user_needs.get("model_name", "default_model")
