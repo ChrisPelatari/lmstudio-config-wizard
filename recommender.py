@@ -131,29 +131,16 @@ def recommend_settings(hardware_info: dict, model_profile: dict) -> dict:
     try_mmap = True # Generally beneficial for GGUF models, allows faster loading
 
     # --- Assemble final configuration dictionary ---
-    if is_mlx:
-        config = {
-            "context_length": context_length,
-            "temperature": temp,
-            "top_p": top_p,
-            "top_k": top_k,
-            "repeat_penalty": repeat_penalty,
-            "max_tokens": max_tokens,
-        }
-    else:
-        config = {
-            "context_length": context_length,
-            "gpu_offload": gpu_offload,
-            "cpu_threads": cpu_threads,
-            "batch_size": batch_size,
-            "temperature": temp,
-            "top_p": top_p,
-            "top_k": top_k,
-            "repeat_penalty": repeat_penalty,
-            "max_tokens": max_tokens,
-            "keep_model_in_memory": keep_model_in_memory,
-            "flash_attention": flash_attention,
-            "try_mmap": try_mmap,
-        }
+    config = {
+        "context_length": context_length,
+        "temperature": temp,
+        "top_p": top_p,
+        "top_k": top_k,
+        "repeat_penalty": repeat_penalty,
+        "max_tokens": max_tokens,
+        **({"gpu_offload": gpu_offload, "cpu_threads": cpu_threads, "batch_size": batch_size,
+            "keep_model_in_memory": keep_model_in_memory, "flash_attention": flash_attention,
+            "try_mmap": try_mmap} if not is_mlx else {}),
+    }
 
     return config
